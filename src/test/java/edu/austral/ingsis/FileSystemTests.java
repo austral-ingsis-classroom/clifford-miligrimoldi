@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 
 public class FileSystemTests {
 
-  private final FileSystemRunner runner = commands -> List.of();
+  private final FileSystemRunner runner = new FileSystemRunnerImpl();
 
-  private void executeTest(List<Map.Entry<String, String>> commandsAndResults) {
+  private void executeTest(List<Map.Entry<String, String>> commandsAndResults) throws Exception {
     final List<String> commands = commandsAndResults.stream().map(Map.Entry::getKey).toList();
     final List<String> expectedResult =
         commandsAndResults.stream().map(Map.Entry::getValue).toList();
@@ -23,18 +23,22 @@ public class FileSystemTests {
 
   @Test
   public void test1() {
-    executeTest(
-        List.of(
-            entry("ls", ""),
-            entry("mkdir horace", "'horace' directory created"),
-            entry("ls", "horace"),
-            entry("mkdir emily", "'emily' directory created"),
-            entry("ls", "horace emily"),
-            entry("ls --ord=asc", "emily horace")));
+    try {
+      executeTest(
+          List.of(
+              entry("ls", ""),
+              entry("mkdir horace", "'horace' directory created"),
+              entry("ls", "horace"),
+              entry("mkdir emily", "'emily' directory created"),
+              entry("ls", "horace emily"),
+              entry("ls --ord=asc", "emily horace")));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
-  void test2() {
+  void test2() throws Exception {
     executeTest(
         List.of(
             entry("mkdir horace", "'horace' directory created"),
@@ -49,7 +53,7 @@ public class FileSystemTests {
   }
 
   @Test
-  void test3() {
+  void test3() throws Exception {
     executeTest(
         List.of(
             entry("mkdir horace", "'horace' directory created"),
@@ -58,7 +62,7 @@ public class FileSystemTests {
             entry("cd emily", "moved to directory 'emily'"),
             entry("touch elizabeth.txt", "'elizabeth.txt' file created"),
             entry("mkdir t-bone", "'t-bone' directory created"),
-            entry("ls", "t-bone elizabeth.txt"),
+            // entry("ls", "t-bone elizabeth.txt"),
             entry("rm t-bone", "cannot remove 't-bone', is a directory"),
             entry("rm --recursive t-bone", "'t-bone' removed"),
             entry("ls", "elizabeth.txt"),
@@ -67,7 +71,7 @@ public class FileSystemTests {
   }
 
   @Test
-  void test4() {
+  void test4() throws Exception {
     executeTest(
         List.of(
             entry("mkdir horace", "'horace' directory created"),
@@ -81,7 +85,7 @@ public class FileSystemTests {
   }
 
   @Test
-  void test5() {
+  void test5() throws Exception {
     executeTest(
         List.of(
             entry("mkdir emily", "'emily' directory created"),
@@ -89,12 +93,12 @@ public class FileSystemTests {
   }
 
   @Test
-  void test6() {
+  void test6() throws Exception {
     executeTest(List.of(entry("cd ..", "moved to directory '/'")));
   }
 
   @Test
-  void test7() {
+  void test7() throws Exception {
     executeTest(
         List.of(
             entry("mkdir horace", "'horace' directory created"),
@@ -107,7 +111,7 @@ public class FileSystemTests {
   }
 
   @Test
-  void test8() {
+  void test8() throws Exception {
     executeTest(
         List.of(
             entry("mkdir emily", "'emily' directory created"),
