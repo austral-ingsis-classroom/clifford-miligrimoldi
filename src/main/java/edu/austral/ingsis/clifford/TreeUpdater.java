@@ -2,7 +2,7 @@ package edu.austral.ingsis.clifford;
 
 import java.util.List;
 
-public class TreeManager {
+public class TreeUpdater {
   public static Directory updateTree(Directory root, List<String> path, Directory updated)
       throws Exception {
     if (path.isEmpty()) return updated; // caso base

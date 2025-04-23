@@ -10,55 +10,60 @@ import java.util.List;
 import java.util.Optional;
 
 public record Cd(String pathCd) implements Command {
+  private static String Error = "";
+
   @Override
   public Result execute(Session session) {
-    List<String> newPath;
-    if (pathCd.equals("..")) {
-      if (session.path().isEmpty()) {
-        newPath = List.of();
-      } else {
-        newPath = session.path().subList(0, session.path().size() - 1);
-      }
-    } else if (pathCd.equals(".")) {
-      newPath = session.path();
-    } else {
-      List<String> pathPartsList = Arrays.asList(pathCd.split("/"));
-      if (pathCd.startsWith("/")) {
-        // absolute route -> empieza desde root
-        newPath = new ArrayList<>();
-      } else {
-        // relative route -> empieza desde donde estas
-        newPath = new ArrayList<>(session.path());
-      }
-      for (String part : pathPartsList) {
-        if (part.isEmpty() || part.equals(".")) continue;
-        if (part.equals("..")) {
-          if (!newPath.isEmpty()) {
-            newPath.remove(newPath.size() - 1);
-          }
-        } else {
-          newPath.add(part);
-        }
-      }
-    }
-    try {
-      Directory actual = session.root();
-      for (String dirName : newPath) {
-        Optional<FileSystem> child = actual.findChildByName(dirName);
-        if (child.isEmpty()) {
-          return new Result("'" + dirName + "' directory does not exist", session);
-        }
-        if (!child.get().isDirectory()) {
-          return new Result("'" + dirName + "' is not a directory", session);
-        }
-        actual = (Directory) child.get();
-      }
-    } catch (Exception e) {
-      return new Result("Error navigating: " + pathCd, session);
-    }
+    List<String> newPath = resolveNewPath(session);
+
+    Directory current = navigateToNewPath(session.root(), newPath);
+    if (current == null) return new Result(Error, session);
 
     return new Result(
-        "moved to directory '" + (newPath.isEmpty() ? "/" : newPath.get(newPath.size() - 1)) + "'",
-        session.updatePath(newPath));
+            "moved to directory '" + (newPath.isEmpty() ? "/" : newPath.get(newPath.size() - 1)) + "'",
+            session.updatePath(newPath));
+  }
+
+  private List<String> resolveNewPath(Session session) {
+    if (pathCd.equals("..")) return moveUp(session);
+    if (pathCd.equals(".")) return session.path();
+    return parsePathInput(session);
+  }
+
+  private List<String> moveUp(Session session) {
+    if (session.path().isEmpty()) return List.of();
+    return session.path().subList(0, session.path().size() - 1);
+  }
+
+  private List<String> parsePathInput(Session session) {
+    List<String> parts = Arrays.asList(pathCd.split("/"));
+    List<String> result = pathCd.startsWith("/") ? new ArrayList<>() : new ArrayList<>(session.path());
+
+    for (String part : parts) {
+      if (part.isEmpty() || part.equals(".")) continue;
+      if (part.equals("..")) {
+        if (!result.isEmpty()) result.remove(result.size() - 1);
+      } else {
+        result.add(part);
+      }
+    }
+    return result;
+  }
+
+  private Directory navigateToNewPath(Directory root, List<String> path) {
+    Directory current = root;
+    for (String dir : path) {
+      Optional<FileSystem> child = current.findChildByName(dir);
+      if (child.isEmpty()) {
+        Error = "'" + dir + "' directory does not exist";
+        return null;
+      }
+      if (!child.get().isDirectory()) {
+        Error = "'" + dir + "' is not a directory";
+        return null;
+      }
+      current = (Directory) child.get();
+    }
+    return current;
   }
 }

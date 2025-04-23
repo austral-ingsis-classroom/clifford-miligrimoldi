@@ -1,6 +1,7 @@
 package edu.austral.ingsis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import edu.austral.ingsis.clifford.Directory;
 import edu.austral.ingsis.clifford.File;
@@ -106,4 +107,14 @@ public class MyTests {
     // THEN
     assertEquals("Invalid file name: 'fi le.txt'", result.output());
   }
+
+  @Test
+  void testInvalidDirectoryNameWithSpace() throws Exception {
+    Session session = new Session(new Directory("/", List.of()), List.of());
+    Mkdir mkdir = new Mkdir("invalid name");
+    Result result = mkdir.execute(session);
+
+    assertEquals("Invalid directory name: 'invalid name'", result.output());
+  }
+
 }
