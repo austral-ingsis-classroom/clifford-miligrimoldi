@@ -1,7 +1,6 @@
 package edu.austral.ingsis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import edu.austral.ingsis.clifford.Directory;
 import edu.austral.ingsis.clifford.File;
@@ -116,5 +115,4 @@ public class MyTests {
 
     assertEquals("Invalid directory name: 'invalid name'", result.output());
   }
-
 }

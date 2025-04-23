@@ -8,10 +8,8 @@ import edu.austral.ingsis.clifford.commands.MkdirCreator;
 import edu.austral.ingsis.clifford.commands.PwdCreator;
 import edu.austral.ingsis.clifford.commands.RmCreator;
 import edu.austral.ingsis.clifford.commands.TouchCreator;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class StringToCommand {
   private static final Map<String, CommandCreator> creators = new HashMap<>();

@@ -1,5 +1,5 @@
 package edu.austral.ingsis.clifford.commands;
 
 public interface CommandCreator {
-        Command create(String[] commandParts);
+  Command create(String[] commandParts);
 }

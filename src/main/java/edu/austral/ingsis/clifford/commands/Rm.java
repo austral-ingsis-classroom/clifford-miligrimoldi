@@ -11,7 +11,8 @@ public record Rm(String name, boolean recursive) implements Command {
   @Override
   public Result execute(Session session) throws Exception {
     Directory currentDirec;
-    try {currentDirec = session.getCurrentDirectory();
+    try {
+      currentDirec = session.getCurrentDirectory();
     } catch (Exception e) {
       return new Result("Could not access current directory", session);
     }
@@ -24,6 +25,7 @@ public record Rm(String name, boolean recursive) implements Command {
     }
     return removeAndUpdate(session, currentDirec);
   }
+
   private Result removeAndUpdate(Session session, Directory currentDirec) throws Exception {
     Directory updatedDir = currentDirec.removeChild(name);
     Directory newRoot = TreeUpdater.updateTree(session.root(), session.path(), updatedDir);

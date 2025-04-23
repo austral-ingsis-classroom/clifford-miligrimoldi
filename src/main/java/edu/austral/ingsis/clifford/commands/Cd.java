@@ -10,18 +10,18 @@ import java.util.List;
 import java.util.Optional;
 
 public record Cd(String pathCd) implements Command {
-  private static String Error = "";
+  private static String error = "";
 
   @Override
   public Result execute(Session session) {
     List<String> newPath = resolveNewPath(session);
 
     Directory current = navigateToNewPath(session.root(), newPath);
-    if (current == null) return new Result(Error, session);
+    if (current == null) return new Result(error, session);
 
     return new Result(
-            "moved to directory '" + (newPath.isEmpty() ? "/" : newPath.get(newPath.size() - 1)) + "'",
-            session.updatePath(newPath));
+        "moved to directory '" + (newPath.isEmpty() ? "/" : newPath.get(newPath.size() - 1)) + "'",
+        session.updatePath(newPath));
   }
 
   private List<String> resolveNewPath(Session session) {
@@ -37,7 +37,8 @@ public record Cd(String pathCd) implements Command {
 
   private List<String> parsePathInput(Session session) {
     List<String> parts = Arrays.asList(pathCd.split("/"));
-    List<String> result = pathCd.startsWith("/") ? new ArrayList<>() : new ArrayList<>(session.path());
+    List<String> result =
+        pathCd.startsWith("/") ? new ArrayList<>() : new ArrayList<>(session.path());
 
     for (String part : parts) {
       if (part.isEmpty() || part.equals(".")) continue;
@@ -55,11 +56,11 @@ public record Cd(String pathCd) implements Command {
     for (String dir : path) {
       Optional<FileSystem> child = current.findChildByName(dir);
       if (child.isEmpty()) {
-        Error = "'" + dir + "' directory does not exist";
+        error = "'" + dir + "' directory does not exist";
         return null;
       }
       if (!child.get().isDirectory()) {
-        Error = "'" + dir + "' is not a directory";
+        error = "'" + dir + "' is not a directory";
         return null;
       }
       current = (Directory) child.get();
