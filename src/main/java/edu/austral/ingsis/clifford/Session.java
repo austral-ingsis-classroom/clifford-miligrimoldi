@@ -16,11 +16,11 @@ public record Session(Directory root, List<String> path) {
       Optional<FileSystem> childOpt = actual.findChildByName(nombreDirec);
 
       if (childOpt.isEmpty()) {
-        throw new Exception("No se encontró el directorio: " + nombreDirec);
+        throw new Exception("Directory: " + nombreDirec + " not found");
       }
       FileSystem child = childOpt.get();
       if (!child.isDirectory()) {
-        throw new Exception(nombreDirec + " no es un directorio");
+        throw new Exception(nombreDirec + " is not a directory");
       }
       actual = (Directory) child;
     }

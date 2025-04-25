@@ -1,11 +1,13 @@
 package edu.austral.ingsis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import edu.austral.ingsis.clifford.Directory;
 import edu.austral.ingsis.clifford.File;
 import edu.austral.ingsis.clifford.Result;
 import edu.austral.ingsis.clifford.Session;
+import edu.austral.ingsis.clifford.TreeUpdater;
 import edu.austral.ingsis.clifford.commands.*;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -114,5 +116,38 @@ public class MyTests {
     Result result = mkdir.execute(session);
 
     assertEquals("Invalid directory name: 'invalid name'", result.output());
+  }
+
+  @Test
+  void testUpdateTreeNotADirectory() throws Exception {
+    // GIVEN
+    Directory root = new Directory("root", List.of(new File("notADir")));
+    // WHEN + THEN
+    Exception exception =
+        assertThrows(
+            Exception.class,
+            () ->
+                TreeUpdater.updateTree(
+                    root, List.of("notADir"), new Directory("updated", List.of())));
+    assertEquals("notADir is not a directory", exception.getMessage());
+  }
+
+  @Test
+  void getCurrentDirectoryNotFound() throws Exception {
+    // GIVEN
+    Session session = new Session(new Directory("/", List.of()), List.of("invalidPath"));
+    // WHEN + THEN
+    Exception exception = assertThrows(Exception.class, () -> session.getCurrentDirectory());
+    assertEquals("Directory: invalidPath not found", exception.getMessage());
+  }
+
+  @Test
+  void getCurrentDirectoryNotDirectory() throws Exception {
+    // GIVEN
+    Directory root = new Directory("root", List.of(new File("notADir")));
+    Session session = new Session(root, List.of("notADir"));
+    // WHEN & THEN
+    Exception exception = assertThrows(Exception.class, () -> session.getCurrentDirectory());
+    assertEquals("notADir is not a directory", exception.getMessage());
   }
 }
