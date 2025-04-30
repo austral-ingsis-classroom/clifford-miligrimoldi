@@ -31,7 +31,7 @@ public record Mkdir(String dirName) implements Command {
     try {
       return session.getCurrentDirectory();
     } catch (Exception e) {
-      return new Directory("error", List.of()); // alternativa simple
+      return new Directory("error", List.of());
     }
   }
 

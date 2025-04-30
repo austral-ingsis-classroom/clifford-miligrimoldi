@@ -14,7 +14,7 @@ public record Cd(String pathCd) implements Command {
 
   @Override
   public Result execute(Session session) {
-    List<String> newPath = resolveNewPath(session);
+    List<String> newPath = normalize(session);
 
     Directory current = navigateToNewPath(session.root(), newPath);
     if (current == null) return new Result(error, session);
@@ -24,18 +24,7 @@ public record Cd(String pathCd) implements Command {
         session.updatePath(newPath));
   }
 
-  private List<String> resolveNewPath(Session session) {
-    if (pathCd.equals("..")) return moveUp(session);
-    if (pathCd.equals(".")) return session.path();
-    return parsePathInput(session);
-  }
-
-  private List<String> moveUp(Session session) {
-    if (session.path().isEmpty()) return List.of();
-    return session.path().subList(0, session.path().size() - 1);
-  }
-
-  private List<String> parsePathInput(Session session) {
+  private List<String> normalize(Session session) {
     List<String> parts = Arrays.asList(pathCd.split("/"));
     List<String> result =
         pathCd.startsWith("/") ? new ArrayList<>() : new ArrayList<>(session.path());
