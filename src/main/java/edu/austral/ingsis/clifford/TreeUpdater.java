@@ -1,13 +1,11 @@
 package edu.austral.ingsis.clifford;
 
-import java.util.List;
-
 public class TreeUpdater {
-  public static Directory updateTree(Directory root, List<String> path, Directory updated)
+  public static Directory updateTree(Directory root, Path path, Directory updated)
       throws Exception {
     if (path.isEmpty()) return updated; // caso base
-    String next = path.get(0);
-    List<String> restPath = path.subList(1, path.size());
+    String next = path.head();
+    Path rest = path.tail();
 
     FileSystem child =
         root.findChildByName(next).orElseThrow(() -> new Exception("Directory not found: " + next));
@@ -16,8 +14,7 @@ public class TreeUpdater {
       throw new Exception(next + " is not a directory");
     }
 
-    Directory updatedChild = updateTree((Directory) child, restPath, updated);
-    Directory newRoot = root.replaceChild((Directory) child, updatedChild);
-    return newRoot;
+    Directory updatedChild = updateTree((Directory) child, rest, updated);
+    return root.replaceChild((Directory) child, updatedChild);
   }
 }

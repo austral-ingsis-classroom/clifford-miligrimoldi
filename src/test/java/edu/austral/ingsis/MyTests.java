@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import edu.austral.ingsis.clifford.Directory;
 import edu.austral.ingsis.clifford.File;
+import edu.austral.ingsis.clifford.Path;
 import edu.austral.ingsis.clifford.Result;
 import edu.austral.ingsis.clifford.Session;
 import edu.austral.ingsis.clifford.TreeUpdater;
@@ -17,7 +18,8 @@ public class MyTests {
   @Test
   void testTouchAlreadyExists() throws Exception {
     // GIVEN
-    Session session = new Session(new Directory("root", List.of(new File("file1.txt"))), List.of());
+    Session session =
+        new Session(new Directory("root", List.of(new File("file1.txt"))), new Path(List.of()));
     Command touch = new Touch("file1.txt");
     // WHEN
     Result result = touch.execute(session);
@@ -28,7 +30,7 @@ public class MyTests {
   @Test
   void testRmDoesNotExist() throws Exception {
     // GIVEN
-    Session session = new Session(new Directory("root", List.of()), List.of());
+    Session session = new Session(new Directory("root", List.of()), new Path(List.of()));
     Command rm = new Rm("missing.txt", false);
     // WHEN
     Result result = rm.execute(session);
@@ -39,7 +41,7 @@ public class MyTests {
   @Test
   void testPwdAtRoot() throws Exception {
     // GIVEN
-    Session session = new Session(new Directory("root", List.of()), List.of());
+    Session session = new Session(new Directory("root", List.of()), new Path(List.of()));
     Command pwd = new Pwd();
     // WHEN
     Result result = pwd.execute(session);
@@ -51,7 +53,8 @@ public class MyTests {
   void testMkdirAlreadyExists() throws Exception {
     // GIVEN
     Session session =
-        new Session(new Directory("root", List.of(new Directory("docs", List.of()))), List.of());
+        new Session(
+            new Directory("root", List.of(new Directory("docs", List.of()))), new Path(List.of()));
     Command mkdir = new Mkdir("docs");
     // WHEN
     Result result = mkdir.execute(session);
@@ -63,7 +66,7 @@ public class MyTests {
   void testCdNotADirectory() throws Exception {
     // GIVEN
     Directory root = new Directory("root", List.of(new File("notDirec")));
-    Session session = new Session(root, List.of());
+    Session session = new Session(root, new Path(List.of()));
     Command cd = new Cd("notDirec");
     // WHEN
     Result result = cd.execute(session);
@@ -76,7 +79,8 @@ public class MyTests {
     // GIVEN
     Session session =
         new Session(
-            new Directory("root", List.of(new Directory("mydir", List.of()))), List.of("mydir"));
+            new Directory("root", List.of(new Directory("mydir", List.of()))),
+            new Path(List.of("mydir")));
 
     Command cd = new Cd(".");
     // WHEN
@@ -90,7 +94,8 @@ public class MyTests {
     // GIVEN
     Session session =
         new Session(
-            new Directory("root", List.of(new Directory("child", List.of()))), List.of("child"));
+            new Directory("root", List.of(new Directory("child", List.of()))),
+            new Path(List.of("child")));
     Command cd = new Cd("..");
     // WHEN
     Result result = cd.execute(session);
@@ -101,7 +106,7 @@ public class MyTests {
   @Test
   void testTouchInvalidName() throws Exception {
     // GIVEN
-    Session session = new Session(new Directory("root", List.of()), List.of());
+    Session session = new Session(new Directory("root", List.of()), new Path(List.of()));
     Command touch = new Touch("fi le.txt");
     // WHEN
     Result result = touch.execute(session);
@@ -111,7 +116,7 @@ public class MyTests {
 
   @Test
   void testInvalidDirectoryNameWithSpace() throws Exception {
-    Session session = new Session(new Directory("/", List.of()), List.of());
+    Session session = new Session(new Directory("/", List.of()), new Path(List.of()));
     Mkdir mkdir = new Mkdir("invalid name");
     Result result = mkdir.execute(session);
 
@@ -128,14 +133,14 @@ public class MyTests {
             Exception.class,
             () ->
                 TreeUpdater.updateTree(
-                    root, List.of("notADir"), new Directory("updated", List.of())));
+                    root, new Path(List.of("notADir")), new Directory("updated", List.of())));
     assertEquals("notADir is not a directory", exception.getMessage());
   }
 
   @Test
   void getCurrentDirectoryNotFound() throws Exception {
     // GIVEN
-    Session session = new Session(new Directory("/", List.of()), List.of("invalidPath"));
+    Session session = new Session(new Directory("/", List.of()), new Path(List.of("invalidPath")));
     // WHEN + THEN
     Exception exception = assertThrows(Exception.class, () -> session.getCurrentDirectory());
     assertEquals("Directory: invalidPath not found", exception.getMessage());
@@ -145,7 +150,7 @@ public class MyTests {
   void getCurrentDirectoryNotDirectory() throws Exception {
     // GIVEN
     Directory root = new Directory("root", List.of(new File("notADir")));
-    Session session = new Session(root, List.of("notADir"));
+    Session session = new Session(root, new Path(List.of("notADir")));
     // WHEN & THEN
     Exception exception = assertThrows(Exception.class, () -> session.getCurrentDirectory());
     assertEquals("notADir is not a directory", exception.getMessage());

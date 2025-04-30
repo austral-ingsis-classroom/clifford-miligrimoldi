@@ -1,18 +1,17 @@
 package edu.austral.ingsis.clifford;
 
-import java.util.List;
 import java.util.Optional;
 
-public record Session(Directory root, List<String> path) {
-  public Session(Directory root, List<String> path) {
+public record Session(Directory root, Path path) {
+  public Session(Directory root, Path path) {
     this.root = root;
-    this.path = List.copyOf(path);
+    this.path = path;
   }
 
   // recorro desde el root, segun la path
   public Directory getCurrentDirectory() throws Exception {
     Directory actual = root;
-    for (String nombreDirec : path) {
+    for (String nombreDirec : path.segments()) {
       Optional<FileSystem> childOpt = actual.findChildByName(nombreDirec);
 
       if (childOpt.isEmpty()) {
@@ -27,7 +26,7 @@ public record Session(Directory root, List<String> path) {
     return actual;
   }
 
-  public Session updatePath(List<String> newPath) {
+  public Session updatePath(Path newPath) {
     return new Session(this.root, newPath);
   }
 

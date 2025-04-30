@@ -9,13 +9,17 @@ import edu.austral.ingsis.clifford.TreeUpdater;
 public record Touch(String fileName) implements Command {
   @Override
   public Result execute(Session session) throws Exception {
-    if (isInvalidName()) return invalidNameResult(session);
+    if (isInvalidName()) return errorResult(session, "Invalid file name: '" + fileName + "'");
 
-    Directory currentDir = getCurrentDirectoryOrError(session);
-    if (currentDir == null) return new Result("Could not access current directory", session);
+    Directory currentDir;
+    try {
+      currentDir = session.getCurrentDirectory();
+    } catch (Exception e) {
+      return errorResult(session, "Could not access current directory");
+    }
 
     if (currentDir.findChildByName(fileName).isPresent()) {
-      return new Result("File or directory '" + fileName + "' already exists", session);
+      return errorResult(session, "File or directory '" + fileName + "' already exists");
     }
 
     return createFileInDir(currentDir, session);
@@ -25,16 +29,8 @@ public record Touch(String fileName) implements Command {
     return fileName.contains("/") || fileName.contains(" ");
   }
 
-  private Result invalidNameResult(Session session) {
-    return new Result("Invalid file name: '" + fileName + "'", session);
-  }
-
-  private Directory getCurrentDirectoryOrError(Session session) {
-    try {
-      return session.getCurrentDirectory();
-    } catch (Exception e) {
-      return null;
-    }
+  private Result errorResult(Session session, String message) {
+    return new Result(message, session);
   }
 
   private Result createFileInDir(Directory currentDir, Session session) throws Exception {
