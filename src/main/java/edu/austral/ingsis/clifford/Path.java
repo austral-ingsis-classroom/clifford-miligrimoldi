@@ -35,11 +35,6 @@ public record Path(List<String> segments) {
     return isRoot() ? "/" : segments.get(segments.size() - 1);
   }
 
-  public Path parent() {
-    if (isRoot()) return this;
-    return new Path(segments.subList(0, segments.size() - 1));
-  }
-
   @Override
   public String toString() {
     return isRoot() ? "/" : "/" + String.join("/", segments);
